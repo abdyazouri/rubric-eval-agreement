@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run test suite
+        run: pytest -q
+      - name: Run end-to-end pipeline
+        run: python -m rubric_eval.cli --items 300 --seed 7 --n-boot 500
+      - name: Upload agreement report
+        uses: actions/upload-artifact@v4
+        with:
+          name: agreement-report
+          path: reports/agreement_report.md
